@@ -162,17 +162,14 @@ local function updateESP()
             local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 
             if onScreen and (Camera.CFrame.Position - hrp.Position).Magnitude <= maxESPDistance then
+                local scale = (Camera.CFrame.Position - hrp.Position).Magnitude
+                local size = math.clamp(3000 / scale, 2, 60)
                 local x, y = screenPos.X, screenPos.Y
 
-                local modelSize = hrp.Size.Y * 2 -- Altura del personaje (más precisa que usar una constante)
-                local boxHeight = 100 -- Tamaño constante del box en pantalla (ajústalo a gusto)
-                local pixelsPerStud = boxHeight / modelSize
-                local boxWidth = hrp.Size.X * pixelsPerStud * 2 -- Ancho proporcional al personaje
-                local boxHeightPixels = boxHeight
                 -- Box
                 if showBoxes then
-                    parts.Box.Size = Vector2.new(boxWidth, boxHeightPixels)
-                    parts.Box.Position = Vector2.new(x - boxWidth / 2, y - boxHeightPixels / 2)
+                    parts.Box.Size = Vector2.new(size * 1.1, size * 1.8)
+                    parts.Box.Position = Vector2.new(x - size * 0.55, y - size * 0.9)
                     parts.Box.Visible = true
                 else
                     parts.Box.Visible = false
@@ -180,7 +177,7 @@ local function updateESP()
 
                 -- Name
                 if showNames then
-                    parts.Name.Position = Vector2.new(x, y - boxHeightPixels / 2 - 15)
+                    parts.Name.Position = Vector2.new(x, y - size * 1.3)
                     parts.Name.Text = player.Name
                     parts.Name.Visible = true
                 else
@@ -190,7 +187,7 @@ local function updateESP()
                 -- Distance
                 if showDistance then
                     local dist = math.floor((hrp.Position - Camera.CFrame.Position).Magnitude)
-                    parts.Distance.Position = Vector2.new(x, y + boxHeightPixels / 2 + 5)
+                    parts.Distance.Position = Vector2.new(x, y + size * 1.2)
                     parts.Distance.Text = tostring(dist) .. "m"
                     parts.Distance.Visible = true
                 else
@@ -200,9 +197,8 @@ local function updateESP()
                 -- Health Bar
                 if showHealthBars then
                     local hpPercent = humanoid.Health / humanoid.MaxHealth
-                    local barHeight = boxHeightPixels * hpPercent
-                    parts.Health.From = Vector2.new(x - boxWidth / 2 - 4, y + boxHeightPixels / 2)
-                    parts.Health.To = Vector2.new(x - boxWidth / 2 - 4, y + boxHeightPixels / 2 - barHeight)
+                    parts.Health.From = Vector2.new(x - size, y + size)
+                    parts.Health.To = Vector2.new(x - size, y + size - (size * 2 * hpPercent))
                     parts.Health.Color = Color3.fromRGB(255 - (255 * hpPercent), 255 * hpPercent, 0)
                     parts.Health.Visible = true
                 else
@@ -213,12 +209,11 @@ local function updateESP()
                 if showTracers then
                     local bottom = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
                     parts.Tracer.From = bottom
-                    parts.Tracer.To = Vector2.new(x, y + boxHeightPixels / 2)
+                    parts.Tracer.To = Vector2.new(x, y + size)
                     parts.Tracer.Visible = true
                 else
                     parts.Tracer.Visible = false
                 end
-
             else
                 for _, d in pairs(parts) do d.Visible = false end
             end
@@ -332,7 +327,7 @@ EspTab:CreateToggle({
 })
 
 EspTab:CreateToggle({
-    Name = "Box",
+    Name = "Boxes",
     CurrentValue = true,
     Callback = function(val)
         showBoxes = val
@@ -348,7 +343,7 @@ EspTab:CreateToggle({
 })
 
 EspTab:CreateToggle({
-    Name = "Health Bar",
+    Name = "Health Bars",
     CurrentValue = true,
     Callback = function(val)
         showHealthBars = val
