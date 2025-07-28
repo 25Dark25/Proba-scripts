@@ -153,7 +153,7 @@ local function updateESP()
             local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
             local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 
-            if onScreen then
+            if onScreen and (Camera.CFrame.Position - hrp.Position).Magnitude <= maxESPDistance then
                 local scale = (Camera.CFrame.Position - hrp.Position).Magnitude
                 local size = math.clamp(3000 / scale, 2, 60)
                 local x, y = screenPos.X, screenPos.Y
@@ -269,11 +269,11 @@ local function getClosestTarget()
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(aimPart) then
             if not ignoreTeammates or player.Team ~= LocalPlayer.Team then
+                local head = player.Character[aimPart]
                 local distanceFromPlayer = (Camera.CFrame.Position - head.Position).Magnitude
                 if distanceFromPlayer > maxAimbotDistance then
                     continue
                 end
-                local head = player.Character[aimPart]
                 local screenPoint, onScreen = Camera:WorldToViewportPoint(head.Position)
                 if onScreen and isVisible(player.Character) then
                     local mousePos = UserInputService:GetMouseLocation()
