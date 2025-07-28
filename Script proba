@@ -410,15 +410,6 @@ AimbotTab:CreateSlider({
     end
 })
 
-AimbotTab:CreateDropdown({
-    Name = "Target Part",
-    Options = {"Head", "Torso", "HumanoidRootPart"},
-    CurrentOption = "Head",
-    Callback = function(option)
-        aimPart = option
-    end,
-})
-
 AimbotTab:CreateSlider({
    Name = "Aimbot Max Distance",
    Range = {100, 3000},
