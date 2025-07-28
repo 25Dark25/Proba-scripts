@@ -275,19 +275,19 @@ local function getClosestTarget()
     local closest = nil
     local shortest = math.huge
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(aimPart) then
+        local part = player.Character:FindFirstChild(aimPart)
+        if player ~= LocalPlayer and player.Character and part then
             if not ignoreTeammates or player.Team ~= LocalPlayer.Team then
-                local head = player.Character[aimPart]
-                local distanceFromPlayer = (Camera.CFrame.Position - head.Position).Magnitude
+                local distanceFromPlayer = (Camera.CFrame.Position - part.Position).Magnitude
                 if distanceFromPlayer > maxAimbotDistance then
                     continue
                 end
-                local screenPoint, onScreen = Camera:WorldToViewportPoint(head.Position)
+                local screenPoint, onScreen = Camera:WorldToViewportPoint(part.Position)
                 if onScreen and isVisible(player.Character) then
                     local mousePos = UserInputService:GetMouseLocation()
                     local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mousePos.X, mousePos.Y)).Magnitude
                     if distance < fovRadius and distance < shortest then
-                        closest = head
+                        closest = part
                         shortest = distance
                     end
                 end
@@ -412,10 +412,14 @@ AimbotTab:CreateSlider({
 
 AimbotTab:CreateDropdown({
     Name = "Target Part",
-    Options = {"Head", "Torso", "HumanoidRootPart"},
+    Options = {"Head", "Chest"},
     CurrentOption = "Head",
     Callback = function(option)
-        aimPart = option
+        if option == "Chest" then
+            aimPart = "UpperTorso"
+        else
+            aimPart = option
+        end
     end,
 })
 
