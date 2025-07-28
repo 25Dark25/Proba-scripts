@@ -432,25 +432,25 @@ AimbotTab:CreateSlider({
 })
 
 ConfigTab:CreateButton({
-    Name = "💾 Guardar Configuración",
+    Name = "💾 Guardar configuración",
     Callback = function()
         Rayfield:SaveConfiguration()
         Rayfield:Notify({
-            Title = "✅ Configuración guardada",
-            Content = "Tu configuración se ha guardado correctamente.",
-            Duration = 3
+            Title = "Guardado",
+            Content = "La configuración ha sido guardada correctamente.",
+            Duration = 4
         })
     end,
 })
 
 ConfigTab:CreateButton({
-    Name = "📂 Cargar Configuración",
+    Name = "📂 Cargar configuración",
     Callback = function()
         Rayfield:LoadConfiguration()
         Rayfield:Notify({
-            Title = "📂 Configuración cargada",
-            Content = "Se ha cargado tu configuración guardada.",
-            Duration = 3
+            Title = "Cargado",
+            Content = "Configuración cargada correctamente.",
+            Duration = 4
         })
     end,
 })
