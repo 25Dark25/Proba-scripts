@@ -162,10 +162,14 @@ local function updateESP()
             local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 
             if onScreen and (Camera.CFrame.Position - hrp.Position).Magnitude <= maxESPDistance then
-                local scale = (Camera.CFrame.Position - hrp.Position).Magnitude
-                local size = math.clamp(3000 / scale, 2, 60)
                 local x, y = screenPos.X, screenPos.Y
 
+                local modelSize = hrp.Size.Y * 2 -- Altura del personaje (más precisa que usar una constante)
+                local boxHeight = 100 -- Tamaño constante del box en pantalla (ajústalo a gusto)
+                local pixelsPerStud = boxHeight / modelSize
+                local boxWidth = hrp.Size.X * pixelsPerStud * 2 -- Ancho proporcional al personaje
+                local boxHeightPixels = boxHeight
+                
                 -- Box
                 if showBoxes then
                     parts.Box.Size = Vector2.new(size * 1.1, size * 1.8)
