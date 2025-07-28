@@ -15,8 +15,8 @@ local Window = Rayfield:CreateWindow({
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "Big Hub"
+      FolderName = DarkHub, -- Create a custom folder for your hub/game
+      FileName = "UserConfig"
    },
 
    Discord = {
@@ -40,7 +40,7 @@ local Window = Rayfield:CreateWindow({
 -- Crear pestañas
 local EspTab = Window:CreateTab("🧿 ESP", 4483362458)
 local AimbotTab = Window:CreateTab("🎯 Aimbot", 4483362458)
-local ConfigTab = Window:CreateTab("💾 Config", 4483362458)
+local ConfigTab = Window:CreateTab("⚙️ Settings", 4483362458)
 
 -- Variables lógicas
 local Players = game:GetService("Players")
@@ -432,26 +432,46 @@ AimbotTab:CreateSlider({
 })
 
 ConfigTab:CreateButton({
-    Name = "💾 Guardar configuración",
+    Name = "💾 Save configuration",
     Callback = function()
-        Rayfield:SaveConfiguration()
-        Rayfield:Notify({
-            Title = "Guardado",
-            Content = "La configuración ha sido guardada correctamente.",
-            Duration = 4
-        })
+        local success, err = pcall(function()
+            Rayfield:SaveConfiguration()
+        end)
+        if success then
+            Rayfield:Notify({
+                Title = "Saved",
+                Content = "The configuration has been saved correctly.",
+                Duration = 4
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "An error occurred while saving: " .. tostring(err),
+                Duration = 6
+            })
+        end
     end,
 })
 
 ConfigTab:CreateButton({
-    Name = "📂 Cargar configuración",
+    Name = "📂 Load configuration",
     Callback = function()
-        Rayfield:LoadConfiguration()
-        Rayfield:Notify({
-            Title = "Cargado",
-            Content = "Configuración cargada correctamente.",
-            Duration = 4
-        })
+        local success, err = pcall(function()
+            Rayfield:LoadConfiguration()
+        end)
+        if success then
+            Rayfield:Notify({
+                Title = "Uploaded",
+                Content = "Configuration loaded correctly.",
+                Duration = 4
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "An error occurred while loading: " .. tostring(err),
+                Duration = 6
+            })
+        end
     end,
 })
 
