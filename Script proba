@@ -91,7 +91,15 @@ end
 local function updateHighlightColors()
     for character, hl in pairs(highlighted) do
         if character and hl and character:FindFirstChild("Head") then
-            hl.OutlineColor = isVisible(character) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+            local distance = (Camera.CFrame.Position - character.Head.Position).Magnitude
+            if distance <= maxESPDistance and espEnabled then
+                hl.Enabled = true
+                hl.OutlineColor = isVisible(character) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+            else
+                hl.Enabled = false
+            end
+        elseif hl then
+            hl.Enabled = false
         end
     end
 end
