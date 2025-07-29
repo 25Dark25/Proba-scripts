@@ -57,7 +57,8 @@ local showTracers = true
 local aimPart = "Head" -- por defecto
 local maxESPDistance = 1500
 local maxAimbotDistance = 1000
-
+local ignoreDeadPlayersAimbot = true
+local ignoreDeadPlayersAimbot = true
 local espEnabled = true
 local aimbotEnabled = false
 local ignoreTeammates = false
@@ -65,10 +66,10 @@ local aimbotKey = Enum.UserInputType.MouseButton2
 local aimbotHold = false
 local smoothing = 0.15
 local fovRadius = 100
-
 local espDrawings = {} -- para guardar cada dibujo por jugador
 local highlighted = {}
 local fovCircle = Drawing.new("Circle")
+
 fovCircle.Color = Color3.fromRGB(255, 0, 0)
 fovCircle.Thickness = 1
 fovCircle.Radius = fovRadius
@@ -76,7 +77,6 @@ fovCircle.NumSides = 64
 fovCircle.Transparency = 1
 fovCircle.Visible = false
 fovCircle.Filled = false
-
 
 -- ESP
 local function isVisible(character)
@@ -240,6 +240,10 @@ local function refreshESP()
     if not espEnabled then return end
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
+            local humanoid = p.Character:FindFirstChild("Humanoid")
+            if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
+                continue
+            end
             addHighlight(p.Character)
         end
     end
@@ -249,28 +253,29 @@ Players.PlayerAdded:Connect(function(p)
     p.CharacterAdded:Connect(function(char)
         task.wait(1)
         if espEnabled then
+            local humanoid = char:FindFirstChild("Humanoid")
+            if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
+                return
+            end
             addHighlight(char)
         end
     end)
 end)
 
 for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer and player.Character then
-        addHighlight(player.Character)
+    if player ~= LocalPlayer then
+        player.CharacterAdded:Connect(function(char)
+            task.wait(1)
+            if espEnabled then
+                local humanoid = char:FindFirstChild("Humanoid")
+                if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
+                    return
+                end
+                addHighlight(char)
+            end
+        end)
     end
 end
-
-for _, player in ipairs(Players:GetPlayers()) do
-   if player ~= LocalPlayer then
-       player.CharacterAdded:Connect(function(char)
-           task.wait(1)
-           if espEnabled then
-               addHighlight(char)
-           end
-       end)
-   end
-end
-
 
 -- Aimbot
 local function getClosestTarget()
@@ -278,6 +283,12 @@ local function getClosestTarget()
     local shortest = math.huge
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(aimPart) then
+            if ignoreDeadPlayersAimbot then
+                local humanoid = player.Character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.Health <= 0 then
+                    continue
+                end
+            end
             if not ignoreTeammates or player.Team ~= LocalPlayer.Team then
                 local head = player.Character[aimPart]
                 local distanceFromPlayer = (Camera.CFrame.Position - head.Position).Magnitude
@@ -316,6 +327,15 @@ EspTab:CreateToggle({
    Flag = "EnableESP",
    Callback = function(val)
        espEnabled = val
+       refreshESP()
+   end,
+})
+
+EspTab:CreateToggle({
+   Name = "Ignore Dead Players",
+   CurrentValue = true,
+   Callback = function(val)
+       ignoreDeadPlayersESP = val
        refreshESP()
    end,
 })
@@ -394,6 +414,14 @@ AimbotTab:CreateToggle({
    Callback = function(val)
        aimbotEnabled = val
        fovCircle.Visible = val
+   end,
+})
+
+AimbotTab:CreateToggle({
+   Name = "Ignore Dead Players",
+   CurrentValue = true,
+   Callback = function(val)
+       ignoreDeadPlayersAimbot = val
    end,
 })
 
