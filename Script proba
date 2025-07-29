@@ -462,56 +462,60 @@ ConfigTab:CreateButton({
     end,
 })
 
-local changelogOpen = false
-local nextUpdatesOpen = false
+-- Estado de visibilidad
+local changelogVisible = false
+local nextUpdatesVisible = false
 
+-- Crear párrafos ocultos
 local changelogParagraph = UpdateinfoTab:CreateParagraph({
-    Title = "Changelog",
+    Title = "",
     Content = [[
 New Features:
 
 ESP
-- Box 
-- Names 
-- Health Bar 
-- Distance 
-- Tracers 
+ - Box
+ - Names
+ - Health Bar
+ - Distance
+ - Tracers
 
 Aimbot
-- Aimbot max distance
-]],
+ - Aimbot max distance
+    ]],
 })
-changelogParagraph:SetVisible(false)
 
 local nextUpdatesParagraph = UpdateinfoTab:CreateParagraph({
-    Title = "Next Updates",
+    Title = "",
     Content = [[
 The following will be applied in future updates:
 
-- ESP ignores dead players
-- Fixed box sizes.
-
-You can tell me recommendations on rscripts.net
-]],
+- ESP Ignores dead players
+- Fixed box sizes
+- You can tell me recommendations on rscripts.net
+    ]],
 })
+
+-- Ocultar por defecto
+changelogParagraph:SetVisible(false)
 nextUpdatesParagraph:SetVisible(false)
 
+-- Crear botones desplegables
 local changelogButton = UpdateinfoTab:CreateButton({
     Name = "▶ Changelog",
     Callback = function()
-        changelogOpen = not changelogOpen
-        changelogParagraph:SetVisible(changelogOpen)
-        changelogButton:SetName((changelogOpen and "▼" or "▶") .. " Changelog")
-    end
+        changelogVisible = not changelogVisible
+        changelogParagraph:SetVisible(changelogVisible)
+        changelogButton:SetName((changelogVisible and "▼ Changelog") or "▶ Changelog")
+    end,
 })
 
 local nextUpdatesButton = UpdateinfoTab:CreateButton({
     Name = "▶ Next Updates",
     Callback = function()
-        nextUpdatesOpen = not nextUpdatesOpen
-        nextUpdatesParagraph:SetVisible(nextUpdatesOpen)
-        nextUpdatesButton:SetName((nextUpdatesOpen and "▼" or "▶") .. " Next Updates")
-    end
+        nextUpdatesVisible = not nextUpdatesVisible
+        nextUpdatesParagraph:SetVisible(nextUpdatesVisible)
+        nextUpdatesButton:SetName((nextUpdatesVisible and "▼ Next Updates") or "▶ Next Updates")
+    end,
 })
 
 
