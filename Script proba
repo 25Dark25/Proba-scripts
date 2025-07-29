@@ -244,33 +244,37 @@ local function refreshESP()
     end
 end
 
-Players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function(char)
-        task.wait(1)
+local function connectCharacterAdded(player)
+    if player == LocalPlayer then return end
+
+    player.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Humanoid", 3) -- espera segura sin task.wait
+        character:WaitForChild("Head", 3)
+
         if espEnabled then
-            local humanoid = char:FindFirstChild("Humanoid")
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
             if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
                 return
             end
-            addHighlight(char)
+            addHighlight(character)
         end
     end)
-end)
 
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        player.CharacterAdded:Connect(function(char)
-            task.wait(1)
-            if espEnabled then
-                local humanoid = char:FindFirstChild("Humanoid")
-                if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
-                    return
-                end
-                addHighlight(char)
-            end
-        end)
+    -- Si ya tiene personaje al entrar
+    if player.Character then
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if not (ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0) then
+            addHighlight(player.Character)
+        end
     end
 end
+
+for _, p in ipairs(Players:GetPlayers()) do
+    connectCharacterAdded(p)
+end
+
+Players.PlayerAdded:Connect(connectCharacterAdded)
+
 
 -- Aimbot
 local function getClosestTarget()
