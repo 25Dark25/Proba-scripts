@@ -462,8 +462,8 @@ ConfigTab:CreateButton({
 
 UpdateinfoTab:CreateParagraph({
    Title = "Changelog:",
-   Content = [[
-   ESP
+   Content = [[ESP
+
  - Box
  - Names
  - Health Bar
@@ -471,17 +471,18 @@ UpdateinfoTab:CreateParagraph({
  - Tracers
 
 Aimbot
+
  - Aimbot max distance]],
 })
 
 UpdateinfoTab:CreateParagraph({
    Title = "Next updates:",
-   Content = [[
-   The following will be applied in future updates:
+   Content = [[The following will be applied in future updates:
 
 - ESP Ignores dead players
 - Fixed box sizes
-- You can tell me recommendations on rscripts.net]],
+
+* You can tell me recommendations on rscripts.net]],
 })
 
 -- Input
