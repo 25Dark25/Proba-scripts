@@ -43,62 +43,6 @@ local AimbotTab = Window:CreateTab("🎯 Aimbot", 4483362458)
 local ConfigTab = Window:CreateTab("⚙️ Settings", 4483362458)
 local UpdateinfoTab = Window:CreateTab("ℹ️ Update Info", 4483362458)
 
--- Estado de visibilidad
-local changelogVisible = false
-local nextUpdatesVisible = false
-
--- Crear párrafos ocultos
-local changelogParagraph = UpdateinfoTab:CreateParagraph({
-    Title = "",
-    Content = [[
-New Features:
-
-ESP
- - Box
- - Names
- - Health Bar
- - Distance
- - Tracers
-
-Aimbot
- - Aimbot max distance
-    ]],
-})
-
-local nextUpdatesParagraph = UpdateinfoTab:CreateParagraph({
-    Title = "",
-    Content = [[
-The following will be applied in future updates:
-
-- ESP Ignores dead players
-- Fixed box sizes
-- You can tell me recommendations on rscripts.net
-    ]],
-})
-
--- Ocultar por defecto
-changelogParagraph:SetVisible(false)
-nextUpdatesParagraph:SetVisible(false)
-
--- Crear botones desplegables
-local changelogButton = UpdateinfoTab:CreateButton({
-    Name = "▶ Changelog",
-    Callback = function()
-        changelogVisible = not changelogVisible
-        changelogParagraph:SetVisible(changelogVisible)
-        changelogButton:SetName((changelogVisible and "▼ Changelog") or "▶ Changelog")
-    end,
-})
-
-local nextUpdatesButton = UpdateinfoTab:CreateButton({
-    Name = "▶ Next Updates",
-    Callback = function()
-        nextUpdatesVisible = not nextUpdatesVisible
-        nextUpdatesParagraph:SetVisible(nextUpdatesVisible)
-        nextUpdatesButton:SetName((nextUpdatesVisible and "▼ Next Updates") or "▶ Next Updates")
-    end,
-})
-
 -- Variables lógicas
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -488,8 +432,6 @@ AimbotTab:CreateSlider({
    end,
 })
 
-
-
 ConfigTab:CreateParagraph({
    Title = "ℹ️ Info",
    Content = "The configuration is automatically saved.",
@@ -516,6 +458,28 @@ ConfigTab:CreateButton({
             })
         end
     end,
+})
+
+UpdateinfoTab:CreateParagraph({
+   Title = "New Features:",
+   Content = "ESP
+ "- Box
+ "- Names
+ "- Health Bar
+ "- Distance
+ "- Tracers
+
+"Aimbot
+ "- Aimbot max distance",
+})
+
+UpdateinfoTab:CreateParagraph({
+   Title = "New Features:",
+   Content = "The following will be applied in future updates:
+
+"- ESP Ignores dead players
+"- Fixed box sizes
+"- You can tell me recommendations on rscripts.net",
 })
 
 -- Input
