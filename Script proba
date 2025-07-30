@@ -57,8 +57,7 @@ local showTracers = true
 local aimPart = "Head" -- por defecto
 local maxESPDistance = 1500
 local maxAimbotDistance = 1000
-local ignoreDeadPlayersAimbot = true
-local ignoreDeadPlayersAimbot = true
+
 local espEnabled = true
 local aimbotEnabled = false
 local ignoreTeammates = false
@@ -66,10 +65,12 @@ local aimbotKey = Enum.UserInputType.MouseButton2
 local aimbotHold = false
 local smoothing = 0.15
 local fovRadius = 100
+local ignoreDeadESP = true
+local ignoreDeadAimbot = true
+
 local espDrawings = {} -- para guardar cada dibujo por jugador
 local highlighted = {}
 local fovCircle = Drawing.new("Circle")
-
 fovCircle.Color = Color3.fromRGB(255, 0, 0)
 fovCircle.Thickness = 1
 fovCircle.Radius = fovRadius
@@ -77,6 +78,7 @@ fovCircle.NumSides = 64
 fovCircle.Transparency = 1
 fovCircle.Visible = false
 fovCircle.Filled = false
+
 
 -- ESP
 local function isVisible(character)
@@ -154,62 +156,72 @@ end
 
 local function updateESP()
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Head") then
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            
-            if ignoreDeadPlayersESP and (not humanoid or humanoid.Health <= 0) then
-                removeESP(player)
-                continue
-            end
-
+        if player ~= LocalPlayer 
+        and player.Character 
+        and player.Character:FindFirstChild("HumanoidRootPart") 
+        and player.Character:FindFirstChild("Head") 
+        and player.Character:FindFirstChildOfClass("Humanoid")
+        and player.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
             createESP(player)
 
             local parts = espDrawings[player]
             local hrp = player.Character.HumanoidRootPart
             local head = player.Character.Head
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
             local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 
             if onScreen and (Camera.CFrame.Position - hrp.Position).Magnitude <= maxESPDistance then
-                local size = 40
+                local scale = (Camera.CFrame.Position - hrp.Position).Magnitude
+                local size = 40 -- Puedes ajustar este valor si quieres que las cajas sean más grandes o más pequeñas
                 local x, y = screenPos.X, screenPos.Y
 
                 -- Box
-                parts.Box.Visible = showBoxes
                 if showBoxes then
                     parts.Box.Size = Vector2.new(size * 1.1, size * 1.8)
                     parts.Box.Position = Vector2.new(x - size * 0.55, y - size * 0.9)
+                    parts.Box.Visible = true
+                else
+                    parts.Box.Visible = false
                 end
 
                 -- Name
-                parts.Name.Visible = showNames
                 if showNames then
                     parts.Name.Position = Vector2.new(x, y - size * 1.3)
                     parts.Name.Text = player.Name
+                    parts.Name.Visible = true
+                else
+                    parts.Name.Visible = false
                 end
 
                 -- Distance
-                parts.Distance.Visible = showDistance
                 if showDistance then
                     local dist = math.floor((hrp.Position - Camera.CFrame.Position).Magnitude)
                     parts.Distance.Position = Vector2.new(x, y + size * 1.2)
                     parts.Distance.Text = tostring(dist) .. "m"
+                    parts.Distance.Visible = true
+                else
+                    parts.Distance.Visible = false
                 end
 
                 -- Health Bar
-                parts.Health.Visible = showHealthBars
                 if showHealthBars then
                     local hpPercent = humanoid.Health / humanoid.MaxHealth
                     parts.Health.From = Vector2.new(x - size, y + size)
                     parts.Health.To = Vector2.new(x - size, y + size - (size * 2 * hpPercent))
                     parts.Health.Color = Color3.fromRGB(255 - (255 * hpPercent), 255 * hpPercent, 0)
+                    parts.Health.Visible = true
+                else
+                    parts.Health.Visible = false
                 end
 
                 -- Tracer
-                parts.Tracer.Visible = showTracers
                 if showTracers then
                     local bottom = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
                     parts.Tracer.From = bottom
                     parts.Tracer.To = Vector2.new(x, y + size)
+                    parts.Tracer.Visible = true
+                else
+                    parts.Tracer.Visible = false
                 end
             else
                 for _, d in pairs(parts) do d.Visible = false end
@@ -235,45 +247,36 @@ local function refreshESP()
     if not espEnabled then return end
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
-            local humanoid = p.Character:FindFirstChild("Humanoid")
-            if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
-                continue
-            end
             addHighlight(p.Character)
         end
     end
 end
 
-local function connectCharacterAdded(player)
-    if player == LocalPlayer then return end
-
-    player.CharacterAdded:Connect(function(character)
-        character:WaitForChild("Humanoid", 3) -- espera segura sin task.wait
-        character:WaitForChild("Head", 3)
-
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function(char)
+        task.wait(1)
         if espEnabled then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0 then
-                return
-            end
-            addHighlight(character)
+            addHighlight(char)
         end
     end)
+end)
 
-    -- Si ya tiene personaje al entrar
-    if player.Character then
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if not (ignoreDeadPlayersESP and humanoid and humanoid.Health <= 0) then
-            addHighlight(player.Character)
-        end
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer and player.Character then
+        addHighlight(player.Character)
     end
 end
 
-for _, p in ipairs(Players:GetPlayers()) do
-    connectCharacterAdded(p)
+for _, player in ipairs(Players:GetPlayers()) do
+   if player ~= LocalPlayer then
+       player.CharacterAdded:Connect(function(char)
+           task.wait(1)
+           if espEnabled then
+               addHighlight(char)
+           end
+       end)
+   end
 end
-
-Players.PlayerAdded:Connect(connectCharacterAdded)
 
 
 -- Aimbot
@@ -281,13 +284,11 @@ local function getClosestTarget()
     local closest = nil
     local shortest = math.huge
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(aimPart) then
-            if ignoreDeadPlayersAimbot then
-                local humanoid = player.Character:FindFirstChild("Humanoid")
-                if humanoid and humanoid.Health <= 0 then
-                    continue
-                end
-            end
+        if player ~= LocalPlayer 
+        and player.Character 
+        and player.Character:FindFirstChild(aimPart) 
+        and player.Character:FindFirstChildOfClass("Humanoid")
+        and player.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
             if not ignoreTeammates or player.Team ~= LocalPlayer.Team then
                 local head = player.Character[aimPart]
                 local distanceFromPlayer = (Camera.CFrame.Position - head.Position).Magnitude
@@ -333,9 +334,9 @@ EspTab:CreateToggle({
 EspTab:CreateToggle({
    Name = "Ignore Dead Players",
    CurrentValue = true,
+   Flag = "IgnoreDeadESP",
    Callback = function(val)
-       ignoreDeadPlayersESP = val
-       refreshESP()
+       ignoreDeadESP = val
    end,
 })
 
@@ -419,8 +420,9 @@ AimbotTab:CreateToggle({
 AimbotTab:CreateToggle({
    Name = "Ignore Dead Players",
    CurrentValue = true,
+   Flag = "IgnoreDeadAimbot",
    Callback = function(val)
-       ignoreDeadPlayersAimbot = val
+       ignoreDeadAimbot = val
    end,
 })
 
