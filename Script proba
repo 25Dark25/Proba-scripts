@@ -181,7 +181,6 @@ local function updateESP()
                 removeESP(player)
                 continue
             end
-            createESP(player)
 
             local parts = espDrawings[player]
             local hrp = player.Character.HumanoidRootPart
