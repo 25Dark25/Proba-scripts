@@ -173,7 +173,6 @@ local function updateESP()
         and player.Character:FindFirstChild("Head") 
         and player.Character:FindFirstChildOfClass("Humanoid")
         and player.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
-        and (not ignoreTeammates or player.Team ~= LocalPlayer.Team)
             createESP(player)
 
             local parts = espDrawings[player]
